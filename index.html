@@ -8,6 +8,8 @@
   <link rel="icon" sizes="192x192" href="icon-192.png">
   <link rel="apple-touch-icon" href="icon-192.png">
   <meta name="theme-color" content="#0b1320">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <style>
     :root{ --bg:#0b1320; --card:#121c2e; --text:#eef3ff; --muted:#9fb3d1; --accent:#5aa9ff; --ok:#2ecc71; --err:#ff5a5a; }
     *{box-sizing:border-box}
@@ -22,7 +24,7 @@
     .card{ background:#0f1b2d; border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:14px; }
     label{display:block; margin-top:6px; color:var(--muted)}
     input,select{width:100%; padding:12px; border-radius:12px; background:#0c1627; border:2px solid rgba(255,255,255,.12); color:var(--text)}
-    .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:8px}
+    .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:8px; position:relative; z-index:0}
     button{ padding:10px 14px; border-radius:12px; border:0; cursor:pointer; background:var(--accent); color:#001431; font-weight:700 }
     .ghost{ background:#0e1a2d; color:var(--muted); border:1px solid rgba(255,255,255,.10) }
     .measures{display:grid; gap:10px; margin-top:8px}
@@ -42,7 +44,7 @@
 
     <div class="card" style="margin-bottom:12px">
       <label for="vel">Velocidade (km/h)</label>
-      <input id="vel" type="number" step="any" placeholder="Ex.: 7">
+      <input id="vel" type="number" inputmode="decimal" step="any" placeholder="Ex.: 7">
     </div>
 
     <div class="grid">
@@ -50,7 +52,7 @@
         <p><b>Medidas para <span style="color:var(--ok)">LIGAR</span> (em cm)</b></p>
 
         <label for="currOn">Valor atual no monitor (ms) — opcional</label>
-        <input id="currOn" type="number" step="any" placeholder="Ex.: 880">
+        <input id="currOn" type="number" inputmode="decimal" step="any" placeholder="Ex.: 880">
 
         <label for="modeOn">Situação observada (LIGAR)</label>
         <select id="modeOn">
@@ -62,17 +64,17 @@
         <div id="measuresOn" class="measures">
 
         <div class="measure-row">
-          <input type="number" step="any" placeholder="Valor em cm">
+          <input type="number" inputmode="decimal" step="any" placeholder="Valor em cm">
           <button type="button" class="ghost" onclick="this.parentElement.remove()">Remover</button>
         </div>
     
         <div class="measure-row">
-          <input type="number" step="any" placeholder="Valor em cm">
+          <input type="number" inputmode="decimal" step="any" placeholder="Valor em cm">
           <button type="button" class="ghost" onclick="this.parentElement.remove()">Remover</button>
         </div>
     
         <div class="measure-row">
-          <input type="number" step="any" placeholder="Valor em cm">
+          <input type="number" inputmode="decimal" step="any" placeholder="Valor em cm">
           <button type="button" class="ghost" onclick="this.parentElement.remove()">Remover</button>
         </div>
     
@@ -98,7 +100,7 @@
         <p><b>Medidas para <span style="color:var(--ok)">DESLIGAR</span> (em cm)</b></p>
 
         <label for="currOff">Valor atual no monitor (ms) — opcional</label>
-        <input id="currOff" type="number" step="any" placeholder="Ex.: 1450">
+        <input id="currOff" type="number" inputmode="decimal" step="any" placeholder="Ex.: 1450">
 
         <label for="modeOff">Situação observada (DESLIGAR)</label>
         <select id="modeOff">
@@ -110,17 +112,17 @@
         <div id="measuresOff" class="measures">
 
         <div class="measure-row">
-          <input type="number" step="any" placeholder="Valor em cm">
+          <input type="number" inputmode="decimal" step="any" placeholder="Valor em cm">
           <button type="button" class="ghost" onclick="this.parentElement.remove()">Remover</button>
         </div>
     
         <div class="measure-row">
-          <input type="number" step="any" placeholder="Valor em cm">
+          <input type="number" inputmode="decimal" step="any" placeholder="Valor em cm">
           <button type="button" class="ghost" onclick="this.parentElement.remove()">Remover</button>
         </div>
     
         <div class="measure-row">
-          <input type="number" step="any" placeholder="Valor em cm">
+          <input type="number" inputmode="decimal" step="any" placeholder="Valor em cm">
           <button type="button" class="ghost" onclick="this.parentElement.remove()">Remover</button>
         </div>
     
@@ -159,7 +161,7 @@
     function addMeasure(container){
       const row = document.createElement('div');
       row.className = 'measure-row';
-      row.innerHTML = '<input type="number" step="any" placeholder="Valor em cm"><button type="button" class="ghost" onclick="this.parentElement.remove()">Remover</button>';
+      row.innerHTML = '<input type="number" inputmode="decimal" step="any" placeholder="Valor em cm"><button type="button" class="ghost" onclick="this.parentElement.remove()">Remover</button>';
       container.appendChild(row);
     }
     function mean(arr){ return arr.reduce((a,b)=>a+b,0)/arr.length; }
@@ -201,6 +203,14 @@
       calcularGrupo('measuresOn', vel, 'bigOn', 'detailOn', 'outOn', 'currOn', 'adjustOn', 'modeOn', 'suggestOn');
       calcularGrupo('measuresOff', vel, 'bigOff', 'detailOff', 'outOff', 'currOff', 'adjustOff', 'modeOff', 'suggestOff');
     }
+
+    
+    // remove error class when user types
+    document.addEventListener('input', function(e){
+      if(e.target && e.target.tagName === 'INPUT'){
+        e.target.classList.remove('error');
+      }
+    });
 
     if ('serviceWorker' in navigator){ window.addEventListener('load', ()=> navigator.serviceWorker.register('./service-worker.js')); }
   </script>
