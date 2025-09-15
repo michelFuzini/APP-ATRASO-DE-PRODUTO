@@ -4,17 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Calculadora de Atraso (Ligar / Desligar)</title>
+  <meta name="theme-color" content="#0b1320">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" sizes="192x192" href="icon-192.png">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <meta name="theme-color" content="#0b1320">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <style>
     :root{ --bg:#0b1320; --card:#121c2e; --text:#eef3ff; --muted:#9fb3d1; --accent:#5aa9ff; --ok:#2ecc71; --err:#ff5a5a; }
     *{box-sizing:border-box}
-    body{ margin:0; padding:24px; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; background:#0b1320; color:var(--text)}
-    .wrap{ max-width:1100px; margin:auto; background:var(--card); border-radius:18px; padding:22px; }
+    body{ margin:0; padding:24px; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; background:linear-gradient(180deg, var(--bg), #0f1a2b 60%, #101820); color:var(--text)}
+    .wrap{ max-width:1100px; margin:auto; background:var(--card); border-radius:18px; padding:22px; border:1px solid rgba(255,255,255,.06) }
     .logo{max-width:220px; display:block; margin:0 auto 6px auto}
     .brand{text-align:center; color:var(--accent); font-weight:800; text-transform:uppercase; margin-bottom:10px}
     h1{text-align:center; margin:6px 0}
@@ -24,7 +24,8 @@
     .card{ background:#0f1b2d; border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:14px; }
     label{display:block; margin-top:6px; color:var(--muted)}
     input,select{width:100%; padding:12px; border-radius:12px; background:#0c1627; border:2px solid rgba(255,255,255,.12); color:var(--text)}
-    .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:8px; position:relative; z-index:0}
+    input:focus,select:focus{ border-color: var(--accent); outline:none }
+    .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:8px}
     button{ padding:10px 14px; border-radius:12px; border:0; cursor:pointer; background:var(--accent); color:#001431; font-weight:700 }
     .ghost{ background:#0e1a2d; color:var(--muted); border:1px solid rgba(255,255,255,.10) }
     .measures{display:grid; gap:10px; margin-top:8px}
@@ -32,8 +33,11 @@
     .result{ margin-top:12px; padding:12px; border-radius:12px; background:#0c1627; border:1px solid rgba(255,255,255,.08); font-family:ui-monospace,monospace }
     .bigms{ font-weight:800; font-size:48px }
     .mslabel{ font-size:12px; color:var(--muted) }
-    .error{ border-color: var(--err)!important; box-shadow:0 0 0 3px rgba(255,90,90,.25)!important; }
     .footer{text-align:center; color:var(--muted); margin-top:16px; font-size:12px}
+    .error{ border-color:#ff5a5a !important; box-shadow:0 0 0 3px rgba(255,90,90,.15) !important; }
+    .banner{ margin:10px 0; padding:10px; border-radius:10px; font-size:13px; }
+    .banner.test{ background:#2a2633; border:1px dashed #7e74a6; color:#d9d4f1 }
+    .banner.prod{ background:#0f2a20; border:1px solid #2ecc71; color:#c6f3e0 }
   </style>
 </head>
 <body>
@@ -45,7 +49,7 @@
 
     <div class="card" style="margin-bottom:12px">
       <label for="vel">Velocidade (km/h)</label>
-      <input id="vel" type="number" inputmode="decimal" step="any" placeholder="Ex.: 7">
+      <input id="vel" type="number" inputmode="decimal" placeholder="Ex.: 7" tabindex="1">
     </div>
 
     <div class="grid">
@@ -53,32 +57,19 @@
         <p><b>Medidas para <span style="color:var(--ok)">LIGAR</span> (em cm)</b></p>
 
         <label for="currOn">Valor atual no monitor (ms) — opcional</label>
-        <input id="currOn" type="number" inputmode="decimal" step="any" placeholder="Ex.: 880">
+        <input id="currOn" type="number" inputmode="decimal" placeholder="Ex.: 880" tabindex="2">
 
         <label for="modeOn">Situação observada (LIGAR)</label>
-        <select id="modeOn">
+        <select id="modeOn" tabindex="3">
           <option value="">— Sem ajuste —</option>
           <option value="antes">Está ligando ANTES</option>
           <option value="depois">Está ligando DEPOIS</option>
         </select>
 
         <div id="measuresOn" class="measures">
-
-        <div class="measure-row">
-          <input type="number" inputmode="decimal" step="any" placeholder="Valor em cm">
-          <button type="button" class="ghost" onclick="this.parentElement.remove()">Remover</button>
-        </div>
-    
-        <div class="measure-row">
-          <input type="number" inputmode="decimal" step="any" placeholder="Valor em cm">
-          <button type="button" class="ghost" onclick="this.parentElement.remove()">Remover</button>
-        </div>
-    
-        <div class="measure-row">
-          <input type="number" inputmode="decimal" step="any" placeholder="Valor em cm">
-          <button type="button" class="ghost" onclick="this.parentElement.remove()">Remover</button>
-        </div>
-    
+          <div class="measure-row"><input type="number" inputmode="decimal" placeholder="Valor em cm" tabindex="4"><button type="button" class="ghost" onclick="this.parentElement.remove()">Remover</button></div>
+          <div class="measure-row"><input type="number" inputmode="decimal" placeholder="Valor em cm" tabindex="5"><button type="button" class="ghost" onclick="this.parentElement.remove()">Remover</button></div>
+          <div class="measure-row"><input type="number" inputmode="decimal" placeholder="Valor em cm" tabindex="6"><button type="button" class="ghost" onclick="this.parentElement.remove()">Remover</button></div>
         </div>
 
         <div class="row">
@@ -101,32 +92,19 @@
         <p><b>Medidas para <span style="color:var(--ok)">DESLIGAR</span> (em cm)</b></p>
 
         <label for="currOff">Valor atual no monitor (ms) — opcional</label>
-        <input id="currOff" type="number" inputmode="decimal" step="any" placeholder="Ex.: 1450">
+        <input id="currOff" type="number" inputmode="decimal" placeholder="Ex.: 1450" tabindex="7">
 
         <label for="modeOff">Situação observada (DESLIGAR)</label>
-        <select id="modeOff">
+        <select id="modeOff" tabindex="8">
           <option value="">— Sem ajuste —</option>
           <option value="antes">Está desligando ANTES</option>
           <option value="depois">Está desligando DEPOIS</option>
         </select>
 
         <div id="measuresOff" class="measures">
-
-        <div class="measure-row">
-          <input type="number" inputmode="decimal" step="any" placeholder="Valor em cm">
-          <button type="button" class="ghost" onclick="this.parentElement.remove()">Remover</button>
-        </div>
-    
-        <div class="measure-row">
-          <input type="number" inputmode="decimal" step="any" placeholder="Valor em cm">
-          <button type="button" class="ghost" onclick="this.parentElement.remove()">Remover</button>
-        </div>
-    
-        <div class="measure-row">
-          <input type="number" inputmode="decimal" step="any" placeholder="Valor em cm">
-          <button type="button" class="ghost" onclick="this.parentElement.remove()">Remover</button>
-        </div>
-    
+          <div class="measure-row"><input type="number" inputmode="decimal" placeholder="Valor em cm" tabindex="9"><button type="button" class="ghost" onclick="this.parentElement.remove()">Remover</button></div>
+          <div class="measure-row"><input type="number" inputmode="decimal" placeholder="Valor em cm" tabindex="10"><button type="button" class="ghost" onclick="this.parentElement.remove()">Remover</button></div>
+          <div class="measure-row"><input type="number" inputmode="decimal" placeholder="Valor em cm" tabindex="11"><button type="button" class="ghost" onclick="this.parentElement.remove()">Remover</button></div>
         </div>
 
         <div class="row">
@@ -148,7 +126,7 @@
 
     <div class="row" style="margin-top:14px">
       <button id="calcBtn" type="button" onclick="calcular()">Calcular atrasos</button>
-      <span class="mslabel">100% offline • Sem envio de dados</span>
+      <span class="mslabel">Sem envio de dados</span>
     </div>
 
     <div id="errBanner" style="display:none; margin-top:10px; background:#2a0f13; color:#ffd5d8; border:1px solid #ff5a5a; padding:10px; border-radius:10px; font-size:14px"></div>
@@ -161,18 +139,18 @@
   </div>
 
   <script>
+    // util
+    function mean(arr){ return arr.reduce((a,b)=>a+b,0)/arr.length; }
+    function fmt(n,d){ return Number.isFinite(n) ? n.toFixed(d) : '—'; }
     function addMeasure(container){
       const row = document.createElement('div');
       row.className = 'measure-row';
-      row.innerHTML = '<input type="number" inputmode="decimal" step="any" placeholder="Valor em cm"><button type="button" class="ghost" onclick="this.parentElement.remove()">Remover</button>';
+      row.innerHTML = '<input type="number" inputmode="decimal" placeholder="Valor em cm"><button type="button" class="ghost" onclick="this.parentElement.remove()">Remover</button>';
       container.appendChild(row);
     }
-    function mean(arr){ return arr.reduce((a,b)=>a+b,0)/arr.length; }
-    function fmt(n,d){ return Number.isFinite(n) ? n.toFixed(d) : '—'; }
+    document.addEventListener('input', function(e){ if(e.target && (e.target.tagName==='INPUT' || e.target.tagName==='SELECT')) e.target.classList.remove('error'); });
+    document.addEventListener('change', function(e){ if(e.target && e.target.tagName==='SELECT') e.target.classList.remove('error'); });
 
-    
-    
-    
     function calcularGrupo(containerId, vel, bigId, detailId, outId, currId, adjustId, modeId, suggestId){
       const container = document.getElementById(containerId);
       const inputs = Array.from(container.querySelectorAll('input'));
@@ -180,145 +158,14 @@
 
       const velEl = document.getElementById('vel');
       const velInvalid = !Number.isFinite(vel) || vel <= 0;
-      if(velInvalid){ velEl.classList.add('error'); } else { velEl.classList.remove('error'); }
+      if(velInvalid){ velEl.classList.add('error'); }
+      else { velEl.classList.remove('error'); }
 
       const values = [];
-      inputs.forEach(i=>{
-        const v = parseFloat((i.value||'').replace(',', '.'));
-        if(Number.isFinite(v)) values.push(v);
-      });
+      inputs.forEach(i=>{ const v = parseFloat((i.value||'').replace(',', '.')); if(Number.isFinite(v)) values.push(v); });
 
-      if(values.length === 0){
-        inputs.forEach(i=> i.classList.add('error'));
-        document.getElementById(outId).style.display='none';
-        return;
-      }
-
-      if(velInvalid){
-        document.getElementById(outId).style.display='none';
-        return;
-      }
-
-      const media = values.reduce((a,b)=>a+b,0)/values.length;
-      const t = media / (vel * 27.78);
-      const ms = t * 1000;
-
-      document.getElementById(outId).style.display='block';
-      document.getElementById(bigId).textContent = Number.isFinite(ms) ? ms.toFixed(3) + ' ms' : '—';
-      document.getElementById(detailId).textContent = 'média(distâncias): ' + media.toFixed(4) + ' cm
-' + 't: ' + t.toFixed(6) + ' s';
-
-      const currEl = document.getElementById(currId);
-      const modeEl = document.getElementById(modeId);
-      const curr = parseFloat((currEl.value||'').replace(',', '.'));
-      const mode = modeEl.value;
-
-      const suggestEl = document.getElementById(suggestId);
-      const adjustEl = document.getElementById(adjustId);
-      suggestEl.style.display='none';
-      modeEl.classList.remove('error');
-
-      if(Number.isFinite(curr) && !mode){
-        modeEl.classList.add('error');
-        adjustEl.textContent = 'Selecione a situação observada (ANTES/DEPOIS) para sugerir o ajuste.';
-        return;
-      }
-
-      if(Number.isFinite(curr) && mode){
-        let novo = curr;
-        if(mode==='antes'){ novo = curr - ms; adjustEl.textContent = 'Está adiantado: SUBTRAIA ' + ms.toFixed(3) + ' ms → novo valor sugerido no monitor:'; }
-        else if(mode==='depois'){ novo = curr + ms; adjustEl.textContent = 'Está atrasado: SOME ' + ms.toFixed(3) + ' ms → novo valor sugerido no monitor:'; }
-        suggestEl.textContent = novo.toFixed(3) + ' ms';
-        suggestEl.style.display='block';
-      } else if(!Number.isFinite(curr)) {
-        adjustEl.textContent = '';
-      }
-    }
- else { velEl.classList.remove('error'); }
-
-      const values = [];
-      inputs.forEach(i=>{
-        const v = parseFloat((i.value||'').replace(',', '.'));
-        if(Number.isFinite(v)) values.push(v);
-      });
-
-      if(values.length === 0){
-        inputs.forEach(i=> i.classList.add('error'));
-        document.getElementById(outId).style.display='none';
-        return;
-      }
-
-      if(velInvalid){
-        document.getElementById(outId).style.display='none';
-        return;
-      }
-
-      const media = values.reduce((a,b)=>a+b,0)/values.length;
-      const t = media / (vel * 27.78);
-      const ms = t * 1000;
-
-      document.getElementById(outId).style.display='block';
-      document.getElementById(bigId).textContent = Number.isFinite(ms) ? ms.toFixed(3) + ' ms' : '—';
-      document.getElementById(detailId).textContent = 'média(distâncias): ' + media.toFixed(4) + ' cm
-' + 't: ' + t.toFixed(6) + ' s';
-
-      const curr = parseFloat((document.getElementById(currId).value||'').replace(',', '.'));
-      const mode = document.getElementById(modeId).value;
-      const suggestEl = document.getElementById(suggestId);
-      const adjustEl = document.getElementById(adjustId);
-      suggestEl.style.display='none';
-      if(Number.isFinite(curr) && mode){
-        let novo = curr;
-        if(mode==='antes'){ novo = curr - ms; adjustEl.textContent = 'Está adiantado: SUBTRAIA ' + ms.toFixed(3) + ' ms → novo valor sugerido no monitor:'; }
-        else if(mode==='depois'){ novo = curr + ms; adjustEl.textContent = 'Está atrasado: SOME ' + ms.toFixed(3) + ' ms → novo valor sugerido no monitor:'; }
-        suggestEl.textContent = novo.toFixed(3) + ' ms';
-        suggestEl.style.display='block';
-      } else if(Number.isFinite(curr)) {
-        adjustEl.textContent = 'Valor atual no monitor: ' + curr.toFixed(3) + ' ms (selecione a situação para sugerir ajuste)';
-      } else { adjustEl.textContent=''; }
-    }
-);
-
-      let valid = true;
-      if(!Number.isFinite(vel) || vel <= 0){
-        document.getElementById('vel').classList.add('error');
-        valid = false;
-      }
-      if(values.length === 0){
-        inputs.forEach(i=>{ if(!i.value) i.classList.add('error'); });
-        valid = false;
-      }
-
-      if(!valid){
-        document.getElementById(outId).style.display='none';
-        return;
-      }
-
-      const media = mean(values);
-      const t = media / (vel * 27.78);
-      const ms = t * 1000;
-
-      document.getElementById(outId).style.display='block';
-      document.getElementById(bigId).textContent = fmt(ms,3) + ' ms';
-      document.getElementById(detailId).textContent = 'média(distâncias): ' + fmt(media,4) + ' cm
-' + 't: ' + fmt(t,6) + ' s';
-
-      const curr = parseFloat((document.getElementById(currId).value||'').replace(',', '.'));
-      const mode = document.getElementById(modeId).value;
-      const suggestEl = document.getElementById(suggestId);
-      const adjustEl = document.getElementById(adjustId);
-      suggestEl.style.display='none';
-      if(Number.isFinite(curr) && mode){
-        let novo = curr;
-        if(mode==='antes'){ novo = curr - ms; adjustEl.textContent = 'Está adiantado: SUBTRAIA ' + fmt(ms,3) + ' ms → novo valor sugerido no monitor:'; }
-        else if(mode==='depois'){ novo = curr + ms; adjustEl.textContent = 'Está atrasado: SOME ' + fmt(ms,3) + ' ms → novo valor sugerido no monitor:'; }
-        suggestEl.textContent = fmt(novo,3) + ' ms';
-        suggestEl.style.display='block';
-      } else if(Number.isFinite(curr)) {
-        adjustEl.textContent = 'Valor atual no monitor: ' + fmt(curr,3) + ' ms (selecione a situação para sugerir ajuste)';
-      } else { adjustEl.textContent=''; }
-    }
-
+      if(values.length === 0){ inputs.forEach(i=> i.classList.add('error')); document.getElementById(outId).style.display='none'; return; }
+      if(velInvalid){ document.getElementById(outId).style.display='none'; return; }
 
       const media = mean(values);
       const t = media / (vel * 27.78);
@@ -328,75 +175,43 @@
       document.getElementById(bigId).textContent = fmt(ms,3) + ' ms';
       document.getElementById(detailId).textContent = 'média(distâncias): ' + fmt(media,4) + ' cm\n' + 't: ' + fmt(t,6) + ' s';
 
-      const curr = parseFloat((document.getElementById(currId).value||'').replace(',', '.'));
-      const mode = document.getElementById(modeId).value;
+      const currEl = document.getElementById(currId);
+      const modeEl = document.getElementById(modeId);
+      const curr = parseFloat((currEl.value||'').replace(',', '.'));
+      const mode = modeEl.value;
       const suggestEl = document.getElementById(suggestId);
       const adjustEl = document.getElementById(adjustId);
-      suggestEl.style.display='none';
+      suggestEl.style.display='none'; modeEl.classList.remove('error');
+
+      if(Number.isFinite(curr) && !mode){ modeEl.classList.add('error'); adjustEl.textContent = 'Selecione a situação observada (ANTES/DEPOIS) para sugerir o ajuste.'; return; }
       if(Number.isFinite(curr) && mode){
         let novo = curr;
         if(mode==='antes'){ novo = curr - ms; adjustEl.textContent = 'Está adiantado: SUBTRAIA ' + fmt(ms,3) + ' ms → novo valor sugerido no monitor:'; }
         else if(mode==='depois'){ novo = curr + ms; adjustEl.textContent = 'Está atrasado: SOME ' + fmt(ms,3) + ' ms → novo valor sugerido no monitor:'; }
-        suggestEl.textContent = fmt(novo,3) + ' ms';
-        suggestEl.style.display='block';
-      } else if(Number.isFinite(curr)) {
-        adjustEl.textContent = 'Valor atual no monitor: ' + fmt(curr,3) + ' ms (selecione a situação para sugerir ajuste)';
-      } else { adjustEl.textContent=''; }
+        suggestEl.textContent = fmt(novo,3) + ' ms'; suggestEl.style.display='block';
+      } else if(!Number.isFinite(curr)) { adjustEl.textContent = ''; }
     }
 
-    
     function calcular(){
       try{
-        const velStr = (document.getElementById('vel').value||'').replace(',', '.');
-        const vel = parseFloat(velStr);
-        const err = document.getElementById('errBanner');
-        err.style.display='none'; err.textContent='';
-
-        const beforeOn = document.getElementById('outOn').style.display;
-        const beforeOff = document.getElementById('outOff').style.display;
-
+        const vel = parseFloat((document.getElementById('vel').value||'').replace(',', '.'));
+        const err = document.getElementById('errBanner'); err.style.display='none'; err.textContent='';
         calcularGrupo('measuresOn', vel, 'bigOn', 'detailOn', 'outOn', 'currOn', 'adjustOn', 'modeOn', 'suggestOn');
         calcularGrupo('measuresOff', vel, 'bigOff', 'detailOff', 'outOff', 'currOff', 'adjustOff', 'modeOff', 'suggestOff');
-
-        const afterOn = document.getElementById('outOn').style.display;
-        const afterOff = document.getElementById('outOff').style.display;
-
-        if((afterOn === 'none' || afterOn === '') && (afterOff === 'none' || afterOff === '')){
-          const velInvalid = !Number.isFinite(vel) || vel <= 0;
-          if(velInvalid){
-            err.textContent = 'Preencha a velocidade (km/h) com um número válido (ex.: 7).';
-          } else {
-            err.textContent = 'Digite ao menos uma medida em cm (em LIGAR e/ou DESLIGAR).';
-          }
-          err.style.display = 'block';
-        }
-      }catch(e){
-        const err = document.getElementById('errBanner');
-        if(err){ err.textContent = 'Ocorreu um erro ao calcular. Atualize a página.'; err.style.display='block'; }
-        console.error(e);
-      }
+        const onShown = document.getElementById('outOn').style.display !== 'none' && document.getElementById('outOn').style.display !== '';
+        const offShown = document.getElementById('outOff').style.display !== 'none' && document.getElementById('outOff').style.display !== '';
+        if(!onShown && !offShown){ if(!Number.isFinite(vel) || vel<=0) err.textContent='Preencha a velocidade (ex.: 7 km/h).'; else err.textContent='Digite ao menos uma medida em cm.'; err.style.display='block'; }
+      }catch(e){ const err = document.getElementById('errBanner'); err.textContent='Erro ao calcular.'; err.style.display='block'; console.error(e); }
     }
+    document.getElementById('vel').addEventListener('keydown', e=>{ if(e.key==='Enter') calcular(); });
 
+    // Sinal de que JS está ativo (debug visual)
+    document.body.setAttribute('data-js','ok');
 
     
-    // remove error class when user types
+    // Service worker (produção)
+    if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js')); }
     
-    // remove error when selecting a situation
-    document.addEventListener('change', function(e){
-      if(e.target && e.target.tagName === 'SELECT'){
-        e.target.classList.remove('error');
-      }
-    });
-
-    document.addEventListener('input', function(e){
-      if(e.target && e.target.tagName === 'INPUT'){
-        e.target.classList.remove('error');
-      }
-    });
-
-    document.getElementById('vel').addEventListener('keydown', function(e){ if(e.key==='Enter'){ calcular(); }});
-
-    if ('serviceWorker' in navigator){ window.addEventListener('load', ()=> navigator.serviceWorker.register('./service-worker.js')); }
   </script>
 </body>
 </html>
