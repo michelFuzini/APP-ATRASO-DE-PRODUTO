@@ -32,6 +32,7 @@
     .result{ margin-top:12px; padding:12px; border-radius:12px; background:#0c1627; border:1px solid rgba(255,255,255,.08); font-family:ui-monospace,monospace }
     .bigms{ font-weight:800; font-size:48px }
     .mslabel{ font-size:12px; color:var(--muted) }
+    .error{ border-color: var(--err)!important; box-shadow:0 0 0 3px rgba(255,90,90,.25)!important; }
     .footer{text-align:center; color:var(--muted); margin-top:16px; font-size:12px}
   </style>
 </head>
@@ -150,6 +151,8 @@
       <span class="mslabel">100% offline • Sem envio de dados</span>
     </div>
 
+    <div id="errBanner" style="display:none; margin-top:10px; background:#2a0f13; color:#ffd5d8; border:1px solid #ff5a5a; padding:10px; border-radius:10px; font-size:14px"></div>
+
     <div class="footer">
       © Todos os direitos reservados — Fuzini Soluções Agrícolas · (66) 98451-1133 ·
       <a href="https://instagram.com/fuzini.agro" target="_blank">@fuzini.agro</a> ·
@@ -167,12 +170,155 @@
     function mean(arr){ return arr.reduce((a,b)=>a+b,0)/arr.length; }
     function fmt(n,d){ return Number.isFinite(n) ? n.toFixed(d) : '—'; }
 
+    
+    
+    
     function calcularGrupo(containerId, vel, bigId, detailId, outId, currId, adjustId, modeId, suggestId){
       const container = document.getElementById(containerId);
       const inputs = Array.from(container.querySelectorAll('input'));
+      inputs.forEach(i=>i.classList.remove('error'));
+
+      const velEl = document.getElementById('vel');
+      const velInvalid = !Number.isFinite(vel) || vel <= 0;
+      if(velInvalid){ velEl.classList.add('error'); } else { velEl.classList.remove('error'); }
+
       const values = [];
-      inputs.forEach(i=>{ const v = parseFloat((i.value||'').replace(',', '.')); if(Number.isFinite(v)) values.push(v); else i.classList.add('error'); });
-      if(!Number.isFinite(vel) || vel <= 0 || values.length === 0){ document.getElementById(outId).style.display='none'; return; }
+      inputs.forEach(i=>{
+        const v = parseFloat((i.value||'').replace(',', '.'));
+        if(Number.isFinite(v)) values.push(v);
+      });
+
+      if(values.length === 0){
+        inputs.forEach(i=> i.classList.add('error'));
+        document.getElementById(outId).style.display='none';
+        return;
+      }
+
+      if(velInvalid){
+        document.getElementById(outId).style.display='none';
+        return;
+      }
+
+      const media = values.reduce((a,b)=>a+b,0)/values.length;
+      const t = media / (vel * 27.78);
+      const ms = t * 1000;
+
+      document.getElementById(outId).style.display='block';
+      document.getElementById(bigId).textContent = Number.isFinite(ms) ? ms.toFixed(3) + ' ms' : '—';
+      document.getElementById(detailId).textContent = 'média(distâncias): ' + media.toFixed(4) + ' cm
+' + 't: ' + t.toFixed(6) + ' s';
+
+      const currEl = document.getElementById(currId);
+      const modeEl = document.getElementById(modeId);
+      const curr = parseFloat((currEl.value||'').replace(',', '.'));
+      const mode = modeEl.value;
+
+      const suggestEl = document.getElementById(suggestId);
+      const adjustEl = document.getElementById(adjustId);
+      suggestEl.style.display='none';
+      modeEl.classList.remove('error');
+
+      if(Number.isFinite(curr) && !mode){
+        modeEl.classList.add('error');
+        adjustEl.textContent = 'Selecione a situação observada (ANTES/DEPOIS) para sugerir o ajuste.';
+        return;
+      }
+
+      if(Number.isFinite(curr) && mode){
+        let novo = curr;
+        if(mode==='antes'){ novo = curr - ms; adjustEl.textContent = 'Está adiantado: SUBTRAIA ' + ms.toFixed(3) + ' ms → novo valor sugerido no monitor:'; }
+        else if(mode==='depois'){ novo = curr + ms; adjustEl.textContent = 'Está atrasado: SOME ' + ms.toFixed(3) + ' ms → novo valor sugerido no monitor:'; }
+        suggestEl.textContent = novo.toFixed(3) + ' ms';
+        suggestEl.style.display='block';
+      } else if(!Number.isFinite(curr)) {
+        adjustEl.textContent = '';
+      }
+    }
+ else { velEl.classList.remove('error'); }
+
+      const values = [];
+      inputs.forEach(i=>{
+        const v = parseFloat((i.value||'').replace(',', '.'));
+        if(Number.isFinite(v)) values.push(v);
+      });
+
+      if(values.length === 0){
+        inputs.forEach(i=> i.classList.add('error'));
+        document.getElementById(outId).style.display='none';
+        return;
+      }
+
+      if(velInvalid){
+        document.getElementById(outId).style.display='none';
+        return;
+      }
+
+      const media = values.reduce((a,b)=>a+b,0)/values.length;
+      const t = media / (vel * 27.78);
+      const ms = t * 1000;
+
+      document.getElementById(outId).style.display='block';
+      document.getElementById(bigId).textContent = Number.isFinite(ms) ? ms.toFixed(3) + ' ms' : '—';
+      document.getElementById(detailId).textContent = 'média(distâncias): ' + media.toFixed(4) + ' cm
+' + 't: ' + t.toFixed(6) + ' s';
+
+      const curr = parseFloat((document.getElementById(currId).value||'').replace(',', '.'));
+      const mode = document.getElementById(modeId).value;
+      const suggestEl = document.getElementById(suggestId);
+      const adjustEl = document.getElementById(adjustId);
+      suggestEl.style.display='none';
+      if(Number.isFinite(curr) && mode){
+        let novo = curr;
+        if(mode==='antes'){ novo = curr - ms; adjustEl.textContent = 'Está adiantado: SUBTRAIA ' + ms.toFixed(3) + ' ms → novo valor sugerido no monitor:'; }
+        else if(mode==='depois'){ novo = curr + ms; adjustEl.textContent = 'Está atrasado: SOME ' + ms.toFixed(3) + ' ms → novo valor sugerido no monitor:'; }
+        suggestEl.textContent = novo.toFixed(3) + ' ms';
+        suggestEl.style.display='block';
+      } else if(Number.isFinite(curr)) {
+        adjustEl.textContent = 'Valor atual no monitor: ' + curr.toFixed(3) + ' ms (selecione a situação para sugerir ajuste)';
+      } else { adjustEl.textContent=''; }
+    }
+);
+
+      let valid = true;
+      if(!Number.isFinite(vel) || vel <= 0){
+        document.getElementById('vel').classList.add('error');
+        valid = false;
+      }
+      if(values.length === 0){
+        inputs.forEach(i=>{ if(!i.value) i.classList.add('error'); });
+        valid = false;
+      }
+
+      if(!valid){
+        document.getElementById(outId).style.display='none';
+        return;
+      }
+
+      const media = mean(values);
+      const t = media / (vel * 27.78);
+      const ms = t * 1000;
+
+      document.getElementById(outId).style.display='block';
+      document.getElementById(bigId).textContent = fmt(ms,3) + ' ms';
+      document.getElementById(detailId).textContent = 'média(distâncias): ' + fmt(media,4) + ' cm
+' + 't: ' + fmt(t,6) + ' s';
+
+      const curr = parseFloat((document.getElementById(currId).value||'').replace(',', '.'));
+      const mode = document.getElementById(modeId).value;
+      const suggestEl = document.getElementById(suggestId);
+      const adjustEl = document.getElementById(adjustId);
+      suggestEl.style.display='none';
+      if(Number.isFinite(curr) && mode){
+        let novo = curr;
+        if(mode==='antes'){ novo = curr - ms; adjustEl.textContent = 'Está adiantado: SUBTRAIA ' + fmt(ms,3) + ' ms → novo valor sugerido no monitor:'; }
+        else if(mode==='depois'){ novo = curr + ms; adjustEl.textContent = 'Está atrasado: SOME ' + fmt(ms,3) + ' ms → novo valor sugerido no monitor:'; }
+        suggestEl.textContent = fmt(novo,3) + ' ms';
+        suggestEl.style.display='block';
+      } else if(Number.isFinite(curr)) {
+        adjustEl.textContent = 'Valor atual no monitor: ' + fmt(curr,3) + ' ms (selecione a situação para sugerir ajuste)';
+      } else { adjustEl.textContent=''; }
+    }
+
 
       const media = mean(values);
       const t = media / (vel * 27.78);
@@ -198,19 +344,57 @@
       } else { adjustEl.textContent=''; }
     }
 
+    
     function calcular(){
-      const vel = parseFloat((document.getElementById('vel').value||'').replace(',', '.'));
-      calcularGrupo('measuresOn', vel, 'bigOn', 'detailOn', 'outOn', 'currOn', 'adjustOn', 'modeOn', 'suggestOn');
-      calcularGrupo('measuresOff', vel, 'bigOff', 'detailOff', 'outOff', 'currOff', 'adjustOff', 'modeOff', 'suggestOff');
+      try{
+        const velStr = (document.getElementById('vel').value||'').replace(',', '.');
+        const vel = parseFloat(velStr);
+        const err = document.getElementById('errBanner');
+        err.style.display='none'; err.textContent='';
+
+        const beforeOn = document.getElementById('outOn').style.display;
+        const beforeOff = document.getElementById('outOff').style.display;
+
+        calcularGrupo('measuresOn', vel, 'bigOn', 'detailOn', 'outOn', 'currOn', 'adjustOn', 'modeOn', 'suggestOn');
+        calcularGrupo('measuresOff', vel, 'bigOff', 'detailOff', 'outOff', 'currOff', 'adjustOff', 'modeOff', 'suggestOff');
+
+        const afterOn = document.getElementById('outOn').style.display;
+        const afterOff = document.getElementById('outOff').style.display;
+
+        if((afterOn === 'none' || afterOn === '') && (afterOff === 'none' || afterOff === '')){
+          const velInvalid = !Number.isFinite(vel) || vel <= 0;
+          if(velInvalid){
+            err.textContent = 'Preencha a velocidade (km/h) com um número válido (ex.: 7).';
+          } else {
+            err.textContent = 'Digite ao menos uma medida em cm (em LIGAR e/ou DESLIGAR).';
+          }
+          err.style.display = 'block';
+        }
+      }catch(e){
+        const err = document.getElementById('errBanner');
+        if(err){ err.textContent = 'Ocorreu um erro ao calcular. Atualize a página.'; err.style.display='block'; }
+        console.error(e);
+      }
     }
+
 
     
     // remove error class when user types
+    
+    // remove error when selecting a situation
+    document.addEventListener('change', function(e){
+      if(e.target && e.target.tagName === 'SELECT'){
+        e.target.classList.remove('error');
+      }
+    });
+
     document.addEventListener('input', function(e){
       if(e.target && e.target.tagName === 'INPUT'){
         e.target.classList.remove('error');
       }
     });
+
+    document.getElementById('vel').addEventListener('keydown', function(e){ if(e.key==='Enter'){ calcular(); }});
 
     if ('serviceWorker' in navigator){ window.addEventListener('load', ()=> navigator.serviceWorker.register('./service-worker.js')); }
   </script>
